@@ -77,27 +77,38 @@ export default {
       limit: { minValue: minValue(100) }
     }
   },
+  watch: {
+    currentCategory (catId) {
+      const { title, limit } = this.categories.find(c => c.id === catId)
+      this.limit = limit
+      this.title = title
+    }
+  },
   methods: {
     async submitHandler () {
       if (this.v$.$invalid) {
         this.v$.$touch()
         return
       }
-      console.log('найс')
-      // try {
-      //   const category = await this.$store.dispatch('createCategory', {
-      //     title: this.title,
-      //     limit: this.limit
-      //   })
-      //   this.title = ''
-      //   this.limit = 100
-      //   this.v$.$reset()
-      //   this.$message('Категория была создана')
-      //   this.$emit('created', category)
-      // } catch (e) {
-      //   console.log('Ошибка при создании категории ' + e)
-      // }
+      try {
+        const category = await this.$store.dispatch('updateCategory', {
+          id: this.currentCategory,
+          title: this.title,
+          limit: this.limit
+        })
+        this.v$.$reset()
+        this.$message('Категория была отредактирована')
+        this.$emit('created', category)
+      } catch (e) {
+        console.log('Ошибка при создании категории ' + e)
+      }
     }
+  },
+  created () {
+    const { id, title, limit } = this.categories[0]
+    this.current = id
+    this.limit = limit
+    this.title = title
   },
   mounted () {
     this.select = window.M.FormSelect.init(this.$refs.select)
